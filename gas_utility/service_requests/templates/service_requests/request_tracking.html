@@ -1,4 +1,173 @@
 {% extends 'base.html' %}
+{% block extra_css %}
+<style>
+    .request-details-popover {
+        cursor: pointer;
+    }
+    .popover {
+        max-width: 400px;
+    }
+    .popover-body {
+        padding: 15px;
+    }
+    /* Add delay to prevent flickering */
+    .popover.fade {
+        transition: opacity 0.15s linear;
+    }
+    .popover.show {
+        opacity: 1;
+    }
+
+    .custom-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        z-index: 1000;
+        min-width: 400px;
+        max-width: 600px;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .custom-popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .custom-popup-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    .custom-popup-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        line-height: 1;
+        padding: 0;
+        cursor: pointer;
+        color: #6c757d;
+        transition: color 0.2s;
+    }
+
+    .custom-popup-close:hover {
+        color: #343a40;
+    }
+
+    .custom-popup-body {
+        margin-bottom: 20px;
+    }
+
+    .custom-popup-section {
+        margin-bottom: 15px;
+    }
+
+    .custom-popup-section h6 {
+        color: #495057;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .custom-popup-section p {
+        color: #6c757d;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translate(-50%, -60%);
+            opacity: 0;
+        }
+        to {
+            transform: translate(-50%, -50%);
+            opacity: 1;
+        }
+    }
+
+    .custom-popup.show {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .popup-overlay.show {
+        display: block;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+        margin-top: 15px;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -30px;
+        top: 0;
+        width: 2px;
+        height: 100%;
+        background-color: #dee2e6;
+    }
+
+    .timeline-item::after {
+        content: '';
+        position: absolute;
+        left: -34px;
+        top: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #007bff;
+    }
+
+    .timeline-date {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-bottom: 4px;
+    }
+
+    .timeline-content {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        border-left: 3px solid #007bff;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -80,43 +249,21 @@
                                             {{ request.expected_resolution_date|date:"M d, Y" }}
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-outline-primary me-1" 
-                                                    data-bs-toggle="modal" data-bs-target="#detailsModal{{ request.id }}">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-primary view-details"
+                                                    data-request-id="{{ request.id }}"
+                                                    data-request-details="{{ request.details }}"
+                                                    data-request-type="{{ request.request_type }}"
+                                                    data-request-status="{{ request.status }}"
+                                                    data-submission-date="{{ request.submission_date|date:'M d, Y' }}"
+                                                    data-resolution-date="{{ request.expected_resolution_date|date:'M d, Y' }}"
+                                                    {% if request.attachment %}
+                                                    data-attachment-url="{{ request.attachment.url }}"
+                                                    {% endif %}>
                                                 <i class="fas fa-eye me-1"></i>View
                                             </button>
                                         </td>
                                     </tr>
-                                    
-                                    <!-- Details Modal -->
-                                    <div class="modal fade" id="detailsModal{{ request.id }}" tabindex="-1">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">
-                                                        Request Details #{{ request.id }}
-                                                    </h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div class="mb-3">
-                                                        <h6 class="text-muted mb-2">Details</h6>
-                                                        <p>{{ request.details }}</p>
-                                                    </div>
-                                                    {% if request.attachment %}
-                                                        <div class="mb-3">
-                                                            <h6 class="text-muted mb-2">Attachment</h6>
-                                                            <a href="{{ request.attachment.url }}" class="btn btn-sm btn-outline-secondary">
-                                                                <i class="fas fa-download me-1"></i>Download
-                                                            </a>
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -135,4 +282,112 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create popup elements
+    const popupOverlay = document.createElement('div');
+    popupOverlay.className = 'popup-overlay';
+    document.body.appendChild(popupOverlay);
+
+    const popup = document.createElement('div');
+    popup.className = 'custom-popup';
+    document.body.appendChild(popup);
+
+    // Handle click events for view buttons
+    document.querySelectorAll('.view-details').forEach(button => {
+        button.addEventListener('click', function() {
+            const data = this.dataset;
+            
+            // Populate popup content
+            popup.innerHTML = `
+                <div class="custom-popup-header">
+                    <h5 class="custom-popup-title">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Request #${data.requestId} Details
+                    </h5>
+                    <button type="button" class="custom-popup-close" aria-label="Close">×</button>
+                </div>
+                <div class="custom-popup-body">
+                    <div class="custom-popup-section">
+                        <h6>Request Type</h6>
+                        <p>${formatRequestType(data.requestType)}</p>
+                    </div>
+                    <div class="custom-popup-section">
+                        <h6>Status</h6>
+                        <p>${formatStatus(data.requestStatus)}</p>
+                    </div>
+                    <div class="custom-popup-section">
+                        <h6>Details</h6>
+                        <p>${data.requestDetails}</p>
+                    </div>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-date">Submitted on ${data.submissionDate}</div>
+                            <div class="timeline-content">
+                                Request submitted and pending review
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-date">Expected Resolution: ${data.resolutionDate}</div>
+                            <div class="timeline-content">
+                                Estimated completion date
+                            </div>
+                        </div>
+                    </div>
+                    ${data.attachmentUrl ? `
+                    <div class="custom-popup-section mt-3">
+                        <h6>Attachment</h6>
+                        <a href="${data.attachmentUrl}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            // Show popup and overlay
+            popup.classList.add('show');
+            popupOverlay.classList.add('show');
+        });
+    });
+
+    // Close popup when clicking overlay or close button
+    function closePopup() {
+        popup.classList.remove('show');
+        popupOverlay.classList.remove('show');
+    }
+
+    popupOverlay.addEventListener('click', closePopup);
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('custom-popup-close')) {
+            closePopup();
+        }
+    });
+
+    // Format request type with icon
+    function formatRequestType(type) {
+        const types = {
+            'gas_leak': '<i class="fas fa-exclamation-triangle text-danger me-1"></i>Gas Leak',
+            'service_start': '<i class="fas fa-play text-success me-1"></i>Start Service',
+            'service_stop': '<i class="fas fa-stop text-warning me-1"></i>Stop Service',
+            'billing': '<i class="fas fa-file-invoice-dollar text-info me-1"></i>Billing',
+            'maintenance': '<i class="fas fa-tools text-primary me-1"></i>Maintenance'
+        };
+        return types[type] || '<i class="fas fa-question text-secondary me-1"></i>Other';
+    }
+
+    // Format status with icon
+    function formatStatus(status) {
+        const statuses = {
+            'pending': '<i class="fas fa-clock text-warning me-1"></i>Pending',
+            'in_progress': '<i class="fas fa-cog text-info me-1"></i>In Progress',
+            'resolved': '<i class="fas fa-check text-success me-1"></i>Resolved'
+        };
+        return statuses[status] || status;
+    }
+});
+</script>
 {% endblock %}

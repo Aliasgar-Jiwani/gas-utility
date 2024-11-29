@@ -160,6 +160,3 @@ python manage.py runserver
 - [ ] Real-time Chat Support
 - [ ] Analytics Dashboard
 
-
-
-
