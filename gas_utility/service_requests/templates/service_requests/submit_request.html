@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header text-center py-3">
+                <h4 class="mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>Submit Service Request
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Please correct the errors below.
+                    </div>
+                {% endif %}
+                
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_request_type" class="form-label">
+                            <i class="fas fa-tag me-2"></i>Request Type
+                        </label>
+                        <select name="request_type" class="form-select form-select-lg {% if form.request_type.errors %}is-invalid{% endif %}" 
+                                id="id_request_type" required>
+                            <option value="">Select a request type...</option>
+                            <option value="gas_leak">Gas Leak</option>
+                            <option value="service_start">Start Service</option>
+                            <option value="service_stop">Stop Service</option>
+                            <option value="billing">Billing Issue</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="other">Other</option>
+                        </select>
+                        {% if form.request_type.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.request_type.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_details" class="form-label">
+                            <i class="fas fa-align-left me-2"></i>Details
+                        </label>
+                        <textarea name="details" class="form-control form-control-lg {% if form.details.errors %}is-invalid{% endif %}" 
+                                  id="id_details" rows="5" required 
+                                  placeholder="Please provide detailed information about your request..."></textarea>
+                        {% if form.details.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.details.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="id_attachment" class="form-label">
+                            <i class="fas fa-paperclip me-2"></i>Attachment (Optional)
+                        </label>
+                        <input type="file" name="attachment" class="form-control form-control-lg {% if form.attachment.errors %}is-invalid{% endif %}" 
+                               id="id_attachment">
+                        {% if form.attachment.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.attachment.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Supported formats: PDF, JPG, PNG (max 5MB)
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Request
+                        </button>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Home
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form validation script -->
+<script>
+    // Enable Bootstrap form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}

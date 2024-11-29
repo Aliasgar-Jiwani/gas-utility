@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header text-center py-3">
+                <h4 class="mb-0">
+                    <i class="fas fa-search me-2"></i>Track Your Requests
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                {% if requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Request ID</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Submitted</th>
+                                    <th scope="col">Expected Resolution</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in requests %}
+                                    <tr>
+                                        <td>
+                                            <span class="fw-bold">#{{ request.id }}</span>
+                                        </td>
+                                        <td>
+                                            {% if request.request_type == 'gas_leak' %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>Gas Leak
+                                                </span>
+                                            {% elif request.request_type == 'service_start' %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-play me-1"></i>Start Service
+                                                </span>
+                                            {% elif request.request_type == 'service_stop' %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-stop me-1"></i>Stop Service
+                                                </span>
+                                            {% elif request.request_type == 'billing' %}
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-file-invoice-dollar me-1"></i>Billing
+                                                </span>
+                                            {% elif request.request_type == 'maintenance' %}
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-tools me-1"></i>Maintenance
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-question me-1"></i>Other
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if request.status == 'pending' %}
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="fas fa-clock me-1"></i>Pending
+                                                </span>
+                                            {% elif request.status == 'in_progress' %}
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-cog me-1"></i>In Progress
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>Resolved
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <i class="far fa-calendar-alt me-1"></i>
+                                            {{ request.submission_date|date:"M d, Y" }}
+                                        </td>
+                                        <td>
+                                            <i class="far fa-clock me-1"></i>
+                                            {{ request.expected_resolution_date|date:"M d, Y" }}
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-primary me-1" 
+                                                    data-bs-toggle="modal" data-bs-target="#detailsModal{{ request.id }}">
+                                                <i class="fas fa-eye me-1"></i>View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Details Modal -->
+                                    <div class="modal fade" id="detailsModal{{ request.id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">
+                                                        Request Details #{{ request.id }}
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <h6 class="text-muted mb-2">Details</h6>
+                                                        <p>{{ request.details }}</p>
+                                                    </div>
+                                                    {% if request.attachment %}
+                                                        <div class="mb-3">
+                                                            <h6 class="text-muted mb-2">Attachment</h6>
+                                                            <a href="{{ request.attachment.url }}" class="btn btn-sm btn-outline-secondary">
+                                                                <i class="fas fa-download me-1"></i>Download
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-list fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">No service requests found</h5>
+                        <p class="mb-4">You haven't submitted any service requests yet.</p>
+                        <a href="{% url 'submit_request' %}" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-2"></i>Submit New Request
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
