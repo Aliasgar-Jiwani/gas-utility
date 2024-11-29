@@ -160,28 +160,6 @@ python manage.py runserver
 - [ ] Real-time Chat Support
 - [ ] Analytics Dashboard
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create feature branch
-3. Commit changes
-4. Push to branch
-5. Open pull request
 
-## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📞 Support
-
-For support, please contact:
-- Email: support@gasutility.com
-- Phone: 1-800-GAS-HELP
-
-## 🙏 Acknowledgments
-
-- Django Community
-- Bootstrap Team
-- Font Awesome
-- Google Fonts
-- All Contributors
